@@ -1,0 +1,21 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  @apply box-border;
+}
+
+body {
+  @apply antialiased;
+}
+
+button {
+  @apply focus:outline-none focus:ring-2 focus:ring-santa-red focus:ring-offset-2;
+}
+
+input,
+textarea,
+select {
+  @apply focus:outline-none focus:ring-2 focus:ring-santa-red focus:ring-offset-2;
+}
