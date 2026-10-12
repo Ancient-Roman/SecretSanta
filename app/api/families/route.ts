@@ -59,7 +59,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { name, budget, exchangeDate } = validation.data;
+    const { name, budget, exchangeDate, hostName } = validation.data;
     const code = generateFamilyCode();
 
     const result = await db
@@ -76,12 +76,12 @@ export async function POST(request: NextRequest) {
 
     const newFamily = result[0];
 
-    // Add host as non-participant member
+    // Add host as participant member
     await db.insert(memberships).values({
       familyId: newFamily.id,
       userId: session.userId,
-      displayName: 'Host',
-      isParticipant: false,
+      displayName: hostName || 'Host',
+      isParticipant: true,
     });
 
     return NextResponse.json({ family: newFamily });

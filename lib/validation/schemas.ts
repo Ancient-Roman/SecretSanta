@@ -23,6 +23,10 @@ export const createFamilySchema = z.object({
     .max(255, 'Family name must be 255 characters or less'),
   budget: z.coerce.number().int().positive().optional(),
   exchangeDate: z.coerce.date().optional(),
+  hostName: z
+    .string()
+    .max(255, 'Host name must be 255 characters or less')
+    .optional()
 });
 
 export const addWishlistItemSchema = z.object({

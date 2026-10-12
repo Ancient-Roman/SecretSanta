@@ -21,6 +21,7 @@ export default function HostPage() {
     name: '',
     budget: '',
     exchangeDate: '',
+    hostName: '',
   });
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -52,6 +53,7 @@ export default function HostPage() {
         name: formData.name,
         budget: formData.budget ? parseInt(formData.budget) : undefined,
         exchangeDate: formData.exchangeDate ? new Date(formData.exchangeDate) : undefined,
+        hostName: formData.hostName || undefined,
       });
 
       if (!validation.success) {
@@ -73,8 +75,8 @@ export default function HostPage() {
         return;
       }
 
-      const { familyId } = await response.json();
-      router.push(`/f/${familyId}`);
+      const { family } = await response.json();
+      router.push(`/f/${family.id}`);
     } catch (err) {
       setError('An error occurred');
       setSubmitting(false);
@@ -138,6 +140,17 @@ export default function HostPage() {
                   disabled={submitting}
                 />
               </div>
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">Your Name</label>
+              <input
+                type="text"
+                value={formData.hostName}
+                onChange={(e) => setFormData({ ...formData, hostName: e.target.value })}
+                placeholder="Host"
+                className="w-full px-3 py-2 border border-gray-300 rounded"
+                disabled={submitting}
+              />
             </div>
             <div className="flex gap-2">
               <button
