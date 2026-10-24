@@ -102,7 +102,7 @@ Open **http://localhost:3000** ✨
 
 ### 1. Create an Account
 1. Open http://localhost:3000
-2. Click "Host Sign In"
+2. Click "Existing User Sign In"
 3. Enter your email (from HOST_EMAILS in .env.local)
 4. Watch terminal for magic link (EMAIL_PROVIDER=console logs it)
 5. Copy link and paste in browser
@@ -213,7 +213,7 @@ Open **http://localhost:3000** ✨
 7. Restart dev server: `npm run dev`
 
 ### Test Email Sending
-- Try "Host Sign In" 
+- Try "Existing User Sign In" 
 - Check Gmail inbox for magic link
 - Should arrive within seconds
 

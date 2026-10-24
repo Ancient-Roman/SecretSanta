@@ -20,44 +20,42 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { email } = validation.data;
+    const email = validation.data.email;  // already trimmed + lowercased by the schema
 
-    // Check if email is allowed to be host
-    const hostEmails = (process.env.HOST_EMAILS || '').split(',').map((e) => e.trim());
-    if (!hostEmails.includes(email)) {
-      return NextResponse.json(
-        { error: 'This email is not authorized to create families. Ask a host to share a family code.' },
-        { status: 403 }
-      );
+    const hostEmails = (process.env.HOST_EMAILS || '')
+      .split(',')
+      .map((e) => e.trim().toLowerCase())
+      .filter(Boolean);
+    const isHostEmail = hostEmails.includes(email);
+
+    const existingUser = isHostEmail
+      ? null
+      : await db.query.users.findFirst({ where: eq(users.email, email) });
+
+    // Only send a link if this email is a host or has already joined a family.
+    // Either way, return the same response so nobody can probe who's registered.
+    if (isHostEmail || existingUser) {
+      const token = generateMagicToken();
+      const tokenHash = hashToken(token);
+      const expiresAt = new Date(Date.now() + MAGIC_LINK_EXPIRY);
+
+      await db.insert(loginTokens).values({ email, tokenHash, expiresAt });
+
+      const magicLink = `${APP_URL}/login/callback?token=${token}`;
+      const text = `Sign in to Secret Santa: ${magicLink}`;
+      const html = `
+        <p>Sign in to your Secret Santa account:</p>
+        <p><a href="${magicLink}" style="color: #C41E3A; text-decoration: none;">Click here to sign in</a></p>
+        <p style="color: #999; font-size: 12px;">This link expires in 15 minutes.</p>
+      `;
+
+      await sendEmail({
+        to: email,
+        subject: 'Your Secret Santa Magic Link',
+        text,
+        html,
+      });
     }
-
-    // Generate magic token
-    const token = generateMagicToken();
-    const tokenHash = hashToken(token);
-    const expiresAt = new Date(Date.now() + MAGIC_LINK_EXPIRY);
-
-    // Store token
-    await db.insert(loginTokens).values({
-      email,
-      tokenHash,
-      expiresAt,
-    });
-
-    // Send email
-    const magicLink = `${APP_URL}/login/callback?token=${token}`;
-    const text = `Sign in to Secret Santa: ${magicLink}`;
-    const html = `
-      <p>Sign in to your Secret Santa account:</p>
-      <p><a href="${magicLink}" style="color: #C41E3A; text-decoration: none;">Click here to sign in</a></p>
-      <p style="color: #999; font-size: 12px;">This link expires in 15 minutes.</p>
-    `;
-
-    await sendEmail({
-      to: email,
-      subject: 'Your Secret Santa Magic Link',
-      text,
-      html,
-    });
 
     return NextResponse.json({ success: true });
   } catch (error) {

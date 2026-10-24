@@ -54,7 +54,7 @@ npm run dev
 
 ### Step 5: Test Local Installation
 1. Open `http://localhost:3000`
-2. Click "Host Sign In"
+2. Click "Existing User Sign In"
 3. Enter your email from HOST_EMAILS
 4. Check terminal (EMAIL_PROVIDER=console logs email)
 5. Copy magic link from terminal output
@@ -151,7 +151,7 @@ npm run db:push
 1. Set EMAIL_PROVIDER=gmail-smtp in .env.local
 2. Set GMAIL_USER and GMAIL_APP_PASSWORD
 3. Restart dev server: `npm run dev`
-4. Try "Host Sign In" → Should receive actual email (not console log)
+4. Try "Existing User Sign In" → Should receive actual email (not console log)
 
 ## 🎯 Post-Deployment Verification
 

@@ -48,7 +48,7 @@ All emails sent from `EMAIL_FROM`/`GMAIL_USER` with plain HTML + text fallback.
 ### 6. **Pages & Features**
 
 #### Landing Page (`app/page.tsx`)
-- Tabs: "Join a Family" (code + name) | "Host Sign In" (email)
+- Tabs: "Join a Family" (code + name) | "Existing User Sign In" (email)
 - Responsive design with error handling
 
 #### Auth Flow

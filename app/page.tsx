@@ -123,7 +123,7 @@ export default function Home() {
                 : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
             }`}
           >
-            Host Sign In
+            Existing User Sign In
           </button>
         </div>
 
