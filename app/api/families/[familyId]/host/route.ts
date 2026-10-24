@@ -44,6 +44,8 @@ export async function GET(
       exclusions: familyExclusions.map((ex) => ({
         memberA: ex.memberA.displayName,
         memberB: ex.memberB.displayName,
+        memberAId: ex.memberAId,
+        memberBId: ex.memberBId,
       })),
       failedEmails: failedAssignments.map((a) => ({
         giver: a.giver.displayName,

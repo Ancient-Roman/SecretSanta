@@ -60,6 +60,16 @@ export const removeExclusionSchema = z.object({
   targetMembershipId: z.coerce.number().int().positive(),
 });
 
+export const addHostExclusionSchema = z.object({
+  targetMembershipIdA: z.coerce.number().int().positive(),
+  targetMembershipIdB: z.coerce.number().int().positive(),
+});
+
+export const removeHostExclusionSchema = z.object({
+  targetMembershipIdA: z.coerce.number().int().positive(),
+  targetMembershipIdB: z.coerce.number().int().positive(),
+});
+
 export const removeParticipantSchema = z.object({
   membershipId: z.coerce.number().int().positive(),
 });
