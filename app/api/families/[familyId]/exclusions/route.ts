@@ -1,9 +1,73 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireMember, requireStatus } from '@/lib/auth/guards';
 import { db, exclusions, memberships, families } from '@/lib/db';
-import { eq, and, or } from 'drizzle-orm';
+import { eq, and, or, inArray } from 'drizzle-orm';
 import { addExclusionSchema, removeExclusionSchema } from '@/lib/validation/schemas';
 import { sendEmail } from '@/lib/email/send';
+import { UnauthorizedError } from '@/lib/auth/guards';
+
+export async function GET(
+  _request: NextRequest,
+  props: { params: Promise<{ familyId: string }> }
+) {
+  const params = await props.params;
+  const familyId = parseInt(params.familyId);
+
+  try {
+    // Identifies the caller from the session and verifies they're in this family
+    const { membership } = await requireMember(familyId);
+
+    // Only exclusions where the caller is one side of the pair
+    const rows = await db.query.exclusions.findMany({
+      where: and(
+        eq(exclusions.familyId, familyId),
+        or(
+          eq(exclusions.memberAId, membership.id),
+          eq(exclusions.memberBId, membership.id)
+        )
+      ),
+    });
+
+    // Look up the other person in each pair
+    const otherIds = rows.map((r) =>
+      r.memberAId === membership.id ? r.memberBId : r.memberAId
+    );
+
+    const others =
+      otherIds.length > 0
+        ? await db.query.memberships.findMany({
+            where: and(
+              eq(memberships.familyId, familyId),
+              inArray(memberships.id, otherIds)
+            ),
+          })
+        : [];
+
+    const nameById = new Map(others.map((m) => [m.id, m.displayName]));
+
+    return NextResponse.json({
+      exclusions: rows.map((r) => {
+        const otherId = r.memberAId === membership.id ? r.memberBId : r.memberAId;
+        return {
+          id: r.id,
+          membershipId: otherId,
+          displayName: nameById.get(otherId) ?? 'Unknown',
+          createdByMe: r.createdByMembershipId === membership.id,
+        };
+      }),
+    });
+  } catch (error) {
+    if (error instanceof UnauthorizedError) {
+      const status = error.message === 'Not authenticated' ? 401 : 403;
+      return NextResponse.json({ error: error.message }, { status });
+    }
+    console.error('Get exclusions error:', error);
+    return NextResponse.json(
+      { error: 'Failed to load exclusions' },
+      { status: 500 }
+    );
+  }
+}
 
 export async function POST(
   request: NextRequest,

@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { requireHost, requireStatus } from '@/lib/auth/guards';
-import { db, families, memberships, exclusions, assignments } from '@/lib/db';
-import { eq, and } from 'drizzle-orm';
+import { requireHost } from '@/lib/auth/guards';
+import { db, memberships, exclusions, assignments } from '@/lib/db';
+import { eq, and, isNotNull } from 'drizzle-orm';
+import { HostFamily } from '@/app/_components/types/family';
 
 export async function GET(
   request: NextRequest,
@@ -28,7 +29,7 @@ export async function GET(
     const failedAssignments = await db.query.assignments.findMany({
       where: and(
         eq(assignments.familyId, familyId),
-        (f) => f.emailError
+        isNotNull(assignments.emailError)
       ),
       with: {
         giver: true,
@@ -36,11 +37,11 @@ export async function GET(
       },
     });
 
-    return NextResponse.json({
+    return NextResponse.json<HostFamily>({
       id: family.id,
       name: family.name,
       status: family.status,
-      members: familyMembers.map((m) => ({ id: m.id, name: m.displayName })),
+      members: familyMembers.map((m) => ({ id: m.id, displayName: m.displayName })),
       exclusions: familyExclusions.map((ex) => ({
         memberA: ex.memberA.displayName,
         memberB: ex.memberB.displayName,
@@ -50,7 +51,7 @@ export async function GET(
       failedEmails: failedAssignments.map((a) => ({
         giver: a.giver.displayName,
         receiver: a.receiver.displayName,
-        error: a.emailError,
+        error: a.emailError ?? '',
       })),
     });
   } catch (error) {

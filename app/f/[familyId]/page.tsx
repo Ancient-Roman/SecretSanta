@@ -2,42 +2,22 @@
 
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
-
-interface Member {
-  id: number;
-  displayName: string;
-  wishlistItems: Array<{
-    id: number;
-    title: string;
-    url?: string;
-    notes?: string;
-  }>;
-  isYou: boolean;
-}
-
-interface FamilyData {
-  id: number;
-  name: string;
-  code: string;
-  status: string;
-  budget?: number;
-  exchangeDate?: string;
-  members: Member[];
-  isHost: boolean;
-  myAssignment?: {
-    receiver: string;
-    budget?: number;
-    exchangeDate?: string;
-  };
-}
+import { CreateExclusionModal } from '@/app/_components/exclusions/createExclusionModal';
+import { DeleteExclusionModal } from '@/app/_components/exclusions/deleteExclusionModal';
+import { FamilyMemberData } from '@/app/_components/types/family';
+import { Exclusion, MemberExclusions } from '@/app/_components/types/exclusion';
 
 export default function FamilyPage() {
   const params = useParams();
   const familyId = params.familyId;
 
-  const [family, setFamily] = useState<FamilyData | null>(null);
+  const [family, setFamily] = useState<FamilyMemberData | null>(null);
+  const [myExclusions, setMyExclusions] = useState<MemberExclusions | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+
+  const [showExclusionModal, setShowExclusionModal] = useState(false);
+  const [exclusionToDelete, setExclusionToDelete] = useState<Exclusion | null>(null);
 
   useEffect(() => {
     fetchFamily();
@@ -47,8 +27,13 @@ export default function FamilyPage() {
     try {
       const response = await fetch(`/api/families/${familyId}`);
       if (!response.ok) throw new Error('Failed to fetch family');
-      const data = await response.json();
+      const data: FamilyMemberData = await response.json();
       setFamily(data);
+
+      const exclusionsResponse = await fetch(`/api/families/${familyId}/exclusions`);
+      if (!exclusionsResponse.ok) throw new Error('Failed to fetch exclusions');
+      const exclusionData: MemberExclusions = await exclusionsResponse.json();
+      setMyExclusions(exclusionData);
     } catch (err) {
       setError('Failed to load family. Please try again.');
       console.error(err);
@@ -65,6 +50,18 @@ export default function FamilyPage() {
     return (
       <div className="text-center space-y-4">
         <p className="text-red-600 font-bold">{error || 'Family not found'}</p>
+        <a href="/families" className="text-santa-red hover:underline">
+          ← Back to my families
+        </a>
+      </div>
+    );
+  }
+
+  const yourId = family.members.find((m) => m.isYou)?.id;
+  if (!yourId) {
+    return (
+      <div className="text-center space-y-4">
+        <p className="text-red-600 font-bold">You are not a member of this family.</p>
         <a href="/families" className="text-santa-red hover:underline">
           ← Back to my families
         </a>
@@ -151,6 +148,42 @@ export default function FamilyPage() {
             </div>
           ))}
         </div>
+        <div className="space-y-4">
+        <h3 className="text-xl font-bold">Your Exclusions ({myExclusions?.exclusions?.length || 0})</h3>
+        {myExclusions?.exclusions.length === 0 ? (
+          <p className="text-gray-600">No exclusions</p>
+        ) : (
+          <div className="flex flex-wrap gap-2">
+            {myExclusions?.exclusions.map((ex) => (
+              <div
+                key={ex.id}
+                className="inline-flex items-center gap-3 bg-gray-50 border border-gray-200 rounded-lg pl-3 pr-2 py-2 text-sm"
+              >
+                <span>
+                  You ↔ {ex.displayName} {ex.createdByMe ? '' : '(Host added)'}
+                </span>
+                {family.status === 'open' && (
+                  <button
+                    onClick={() => setExclusionToDelete({ memberAId: ex.membershipId, memberBId: yourId, memberA: ex.displayName, memberB: 'You' })}
+                    aria-label={`Remove exclusion between You and ${ex.displayName}`}
+                    className="text-gray-400 hover:text-santa-red px-1"
+                  >
+                    ✕
+                  </button>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+        {family.status === 'open' && (
+          <button
+            onClick={() => setShowExclusionModal(true)}
+            className="text-white bg-santa-red px-4 py-2 rounded font-medium hover:bg-red-500"
+          >
+            {'Add Exclusions'}
+          </button>
+        )}
+      </div>
       </div>
 
       <div className="border-t pt-4">
@@ -158,6 +191,24 @@ export default function FamilyPage() {
           ← Back to my families
         </a>
       </div>
+
+      {/* Modals */}
+      <CreateExclusionModal
+        open={showExclusionModal}
+        onClose={() => setShowExclusionModal(false)}
+        familyId={familyId as string}
+        members={family.members}
+        exclusions={myExclusions?.exclusions?.map((e) => ({ memberAId: e.membershipId, memberBId: yourId })) || []}
+        onCreated={fetchFamily}
+        isHost={family.isHost}
+        currentMembershipId={family.isHost ? undefined : yourId}
+      />
+      <DeleteExclusionModal
+        exclusion={exclusionToDelete}
+        onClose={() => setExclusionToDelete(null)}
+        familyId={familyId as string}
+        onDeleted={fetchFamily}
+      />
     </div>
   );
 }
