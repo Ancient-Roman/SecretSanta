@@ -40,13 +40,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (!family.joinEnabled) {
-      return NextResponse.json(
-        { error: 'This family is no longer accepting new members' },
-        { status: 403 }
-      );
-    }
-
     if (family.status !== 'open') {
       return NextResponse.json(
         { error: 'This family is not currently open for joining' },

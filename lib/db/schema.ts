@@ -39,7 +39,6 @@ export const families = pgTable(
     exchangeDate: timestamp('exchange_date'),
     verificationEmail: varchar('verification_email', { length: 255 }),
     hostUserId: integer('host_user_id').notNull(),
-    joinEnabled: boolean('join_enabled').notNull().default(true),
     completedAt: timestamp('completed_at'),
     createdAt: timestamp('created_at').defaultNow().notNull(),
     updatedAt: timestamp('updated_at').defaultNow().notNull(),
