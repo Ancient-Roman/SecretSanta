@@ -5,6 +5,7 @@ export type HostFamily = {
   id: number;
   name: string;
   status: string;
+  verificationEmail?: string | null;
   members: Member[];
   exclusions: Exclusion[];
   failedEmails: Array<{ giver: string; receiver: string; error: string }>;

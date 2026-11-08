@@ -37,6 +37,7 @@ export const families = pgTable(
     }).notNull().default('open'),
     budget: integer('budget'),
     exchangeDate: timestamp('exchange_date'),
+    verificationEmail: varchar('verification_email', { length: 255 }),
     hostUserId: integer('host_user_id').notNull(),
     joinEnabled: boolean('join_enabled').notNull().default(true),
     completedAt: timestamp('completed_at'),

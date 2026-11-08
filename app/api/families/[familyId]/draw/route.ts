@@ -85,6 +85,33 @@ export async function POST(
 
     // Send assignment emails
     const memberMap = new Map(participants.map((p) => [p.id, p]));
+    const verificationEmail = family.verificationEmail?.trim().toLowerCase();
+    const verificationLines = assignmentResults.map((assignment) => {
+      const giver = memberMap.get(assignment.giver);
+      const receiver = memberMap.get(assignment.receiver);
+      if (!giver || !receiver) return null;
+      return `${giver.displayName} -> ${receiver.displayName}`;
+    }).filter(Boolean) as string[];
+
+    if (verificationEmail) {
+      const summaryText = [
+        `Secret Santa assignments for ${family.name}`,
+        '',
+        ...verificationLines,
+      ].join('\n');
+
+      const summaryHtml = `
+        <p><strong>${family.name}</strong> Secret Santa assignments are ready.</p>
+        <ul>${verificationLines.map((line) => `<li>${line}</li>`).join('')}</ul>
+      `;
+
+      await sendEmail({
+        to: verificationEmail,
+        subject: `Secret Santa assignments for ${family.name}`,
+        text: summaryText,
+        html: summaryHtml,
+      });
+    }
 
     for (const assignment of assignmentResults) {
       const giver = memberMap.get(assignment.giver);
