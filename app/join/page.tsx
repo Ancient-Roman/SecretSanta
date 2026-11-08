@@ -1,10 +1,18 @@
 'use client';
 
+import { Suspense, useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { useState, useEffect } from 'react';
 import { joinFamilySchema } from '@/lib/validation/schemas';
 
 export default function JoinPage() {
+  return (
+    <Suspense fallback={<div className="max-w-md mx-auto py-8 text-gray-600">Loading...</div>}>
+      <JoinPageContent />
+    </Suspense>
+  );
+}
+
+function JoinPageContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const initialCode = searchParams.get('code')?.toUpperCase() || '';

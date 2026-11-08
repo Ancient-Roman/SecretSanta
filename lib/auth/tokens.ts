@@ -12,7 +12,7 @@ export interface SessionPayload {
 }
 
 export async function createSessionToken(payload: SessionPayload): Promise<string> {
-  const token = await new SignJWT(payload)
+  const token = await new SignJWT(payload as unknown as Record<string, unknown>)
     .setProtectedHeader({ alg: 'HS256' })
     .setIssuedAt()
     .setExpirationTime('30d')
@@ -25,7 +25,7 @@ export async function verifySessionToken(
 ): Promise<SessionPayload | null> {
   try {
     const verified = await jwtVerify(token, SECRET_KEY);
-    return verified.payload as SessionPayload;
+    return verified.payload as unknown as SessionPayload;
   } catch {
     return null;
   }

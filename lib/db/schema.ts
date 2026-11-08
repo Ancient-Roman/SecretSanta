@@ -69,11 +69,11 @@ export const memberships = pgTable(
     isParticipant: boolean('is_participant').notNull().default(true),
     createdAt: timestamp('created_at').defaultNow().notNull(),
   },
-  (table) => [
-    unique('unique_family_user').on(table.familyId, table.userId),
-    index('memberships_family_id_idx').on(table.familyId),
-    index('memberships_user_id_idx').on(table.userId),
-  ]
+  (table) => ({
+    uniqueFamilyUser: unique('unique_family_user').on(table.familyId, table.userId),
+    membershipsFamilyIdIdx: index('memberships_family_id_idx').on(table.familyId),
+    membershipsUserIdIdx: index('memberships_user_id_idx').on(table.userId),
+  })
 );
 
 export const membershipsRelations = relations(
@@ -108,9 +108,9 @@ export const wishlistItems = pgTable(
     createdAt: timestamp('created_at').defaultNow().notNull(),
     updatedAt: timestamp('updated_at').defaultNow().notNull(),
   },
-  (table) => [
-    index('wishlist_items_membership_id_idx').on(table.membershipId),
-  ]
+  (table) => ({
+    wishlistItemsMembershipIdIdx: index('wishlist_items_membership_id_idx').on(table.membershipId),
+  })
 );
 
 export const wishlistItemsRelations = relations(
@@ -134,12 +134,12 @@ export const exclusions = pgTable(
     createdByMembershipId: integer('created_by_membership_id').notNull(),
     createdAt: timestamp('created_at').defaultNow().notNull(),
   },
-  (table) => [
-    unique('unique_exclusion_pair').on(table.familyId, table.memberAId, table.memberBId),
-    index('exclusions_family_id_idx').on(table.familyId),
-    index('exclusions_member_a_id_idx').on(table.memberAId),
-    index('exclusions_member_b_id_idx').on(table.memberBId),
-  ]
+  (table) => ({
+    uniqueExclusionPair: unique('unique_exclusion_pair').on(table.familyId, table.memberAId, table.memberBId),
+    exclusionsFamilyIdIdx: index('exclusions_family_id_idx').on(table.familyId),
+    exclusionsMemberAIdIdx: index('exclusions_member_a_id_idx').on(table.memberAId),
+    exclusionsMemberBIdIdx: index('exclusions_member_b_id_idx').on(table.memberBId),
+  })
 );
 
 export const exclusionsRelations = relations(
@@ -175,11 +175,11 @@ export const assignments = pgTable(
     revealedAt: timestamp('revealed_at'),
     createdAt: timestamp('created_at').defaultNow().notNull(),
   },
-  (table) => [
-    index('assignments_family_id_idx').on(table.familyId),
-    index('assignments_giver_idx').on(table.giverMembershipId),
-    index('assignments_receiver_idx').on(table.receiverMembershipId),
-  ]
+  (table) => ({
+    assignmentsFamilyIdIdx: index('assignments_family_id_idx').on(table.familyId),
+    assignmentsGiverIdx: index('assignments_giver_idx').on(table.giverMembershipId),
+    assignmentsReceiverIdx: index('assignments_receiver_idx').on(table.receiverMembershipId),
+  })
 );
 
 export const assignmentsRelations = relations(
@@ -213,10 +213,10 @@ export const loginTokens = pgTable(
     usedAt: timestamp('used_at'),
     createdAt: timestamp('created_at').defaultNow().notNull(),
   },
-  (table) => [
-    index('login_tokens_email_idx').on(table.email),
-    index('login_tokens_expires_at_idx').on(table.expiresAt),
-  ]
+  (table) => ({
+    loginTokensEmailIdx: index('login_tokens_email_idx').on(table.email),
+    loginTokensExpiresAtIdx: index('login_tokens_expires_at_idx').on(table.expiresAt),
+  })
 );
 
 export const loginTokensRelations = relations(

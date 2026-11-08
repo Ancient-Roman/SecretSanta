@@ -11,7 +11,7 @@ export async function GET(request: NextRequest) {
     const displayName = request.nextUrl.searchParams.get('displayName');
 
     if (!token) {
-      return NextResponse.redirect(new URL('/login/callback?error=missing', request.url));
+      return NextResponse.redirect(new URL('/login/error?error=missing', request.url));
     }
 
     const tokenHash = hashToken(token);
@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
       loginToken.usedAt ||
       new Date(loginToken.expiresAt) < new Date()
     ) {
-      return NextResponse.redirect(new URL('/login/callback?error=expired', request.url));
+      return NextResponse.redirect(new URL('/login/error?error=expired', request.url));
     }
 
     // Get or create user
@@ -112,6 +112,6 @@ export async function GET(request: NextRequest) {
     return response;
   } catch (error) {
     console.error('Auth callback error:', error);
-    return NextResponse.redirect(new URL('/login/callback?error=server', request.url));
+    return NextResponse.redirect(new URL('/login/error?error=server', request.url));
   }
 }

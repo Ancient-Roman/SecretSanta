@@ -19,19 +19,18 @@ describe('Derangement Algorithm', () => {
   });
 
   it('should respect exclusions', () => {
-    const participants = [{ id: 1 }, { id: 2 }, { id: 3 }];
-    const exclusions = new Set(['1-2']); // 1 and 2 are excluded
+    const participants = [{ id: 1 }, { id: 2 }, { id: 3 }, { id: 4 }];
+    const exclusions = new Set(['1-2']);
 
     const result = generateDerangement({ participants, exclusions });
 
-    // Check 1 doesn't draw 2 and 2 doesn't draw 1
     for (const assignment of result) {
-      if (assignment.giver === 1) {
-        expect(assignment.receiver).not.toBe(2);
-      }
-      if (assignment.giver === 2) {
-        expect(assignment.receiver).not.toBe(1);
-      }
+      const pair =
+        assignment.giver < assignment.receiver
+          ? `${assignment.giver}-${assignment.receiver}`
+          : `${assignment.receiver}-${assignment.giver}`;
+      expect(exclusions.has(pair)).toBe(false);
+      expect(assignment.giver).not.toBe(assignment.receiver);
     }
   });
 
@@ -81,7 +80,7 @@ describe('Derangement Algorithm', () => {
     const result = generateDerangement({ participants, exclusions });
 
     expect(result.length).toBe(10);
-    const receivers = result.map((a) => a.receiver).sort();
+    const receivers = result.map((a) => a.receiver).sort((a, b) => a - b);
     expect(receivers).toEqual(Array.from({ length: 10 }, (_, i) => i + 1));
   });
 });
