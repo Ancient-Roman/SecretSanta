@@ -3,17 +3,10 @@ import { requireHost } from '@/lib/auth/guards';
 import { db, memberships, exclusions, assignments, users, families } from '@/lib/db';
 import { eq, and, isNotNull, or } from 'drizzle-orm';
 import { HostFamily } from '@/app/_components/types/family';
-import { z } from 'zod';
-
-export const updateMemberSchema = z.object({
-  memberId: z.coerce.number().int().positive(),
-  displayName: z.string().trim().min(1).max(255).optional(),
-  email: z.string().trim().email().optional(),
-}).passthrough();
-
-export const updateFamilySettingsSchema = z.object({
-  verificationEmail: z.string().trim().email().or(z.literal('')).optional(),
-}).passthrough();
+import {
+  updateFamilySettingsSchema,
+  updateMemberSchema,
+} from '@/lib/validation/host';
 
 export async function GET(
   request: NextRequest,
