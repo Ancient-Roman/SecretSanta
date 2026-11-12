@@ -40,7 +40,7 @@ export default function FamiliesPage() {
           <p className="text-gray-600 mt-1">Families you're part of</p>
         </div>
         <a
-          href="/join"
+          href="/"
           className="bg-santa-red text-white px-4 py-2 rounded font-medium hover:bg-red-700 transition"
         >
           + Join Family
@@ -53,10 +53,10 @@ export default function FamiliesPage() {
         <div className="text-center py-12 bg-gray-50 rounded-lg">
           <p className="text-gray-600">You're not part of any families yet</p>
           <a
-            href="/join"
+            href="/"
             className="mt-4 inline-block text-santa-red hover:underline font-medium"
           >
-            Join a family with a code
+            Join a family from the home page
           </a>
         </div>
       ) : (
