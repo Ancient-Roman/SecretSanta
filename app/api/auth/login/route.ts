@@ -42,7 +42,13 @@ export async function POST(request: NextRequest) {
       await db.insert(loginTokens).values({ email, tokenHash, expiresAt });
 
       const magicLink = `${APP_URL}/login/callback?token=${token}`;
-      const text = `Sign in to Secret Santa: ${magicLink}`;
+      const text = [
+        'Sign in to Secret Santa.',
+        '',
+        `Magic link: ${magicLink}`,
+        '',
+        'This link expires in 15 minutes.',
+      ].join('\n');
       const html = `
         <p>Sign in to your Secret Santa account:</p>
         <p><a href="${magicLink}" style="color: #C41E3A; text-decoration: none;">Click here to sign in</a></p>

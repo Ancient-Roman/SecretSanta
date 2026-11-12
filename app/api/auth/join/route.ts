@@ -63,7 +63,13 @@ export async function POST(request: NextRequest) {
     });
 
     // Send invitation email
-    const text = `You're invited to join the ${family.name} Secret Santa: ${magicLink}`;
+    const text = [
+      `You're invited to join the ${family.name} Secret Santa!`,
+      '',
+      `Join link: ${magicLink}`,
+      '',
+      'This link expires in 15 minutes.',
+    ].join('\n');
     const html = `
       <p>You're invited to join the <strong>${family.name}</strong> Secret Santa!</p>
       <p><a href="${magicLink}" style="color: #C41E3A; text-decoration: none;">Click here to join</a></p>

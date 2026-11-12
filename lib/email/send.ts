@@ -1,5 +1,6 @@
 import nodemailer from 'nodemailer';
 import type { Transporter } from 'nodemailer';
+import { withAppFooter } from './templates';
 
 let transporter: Transporter | null = null;
 
@@ -63,6 +64,10 @@ export interface EmailOptions {
 export async function sendEmail(options: EmailOptions): Promise<void> {
   const provider = process.env.EMAIL_PROVIDER || 'gmail-smtp';
   const emailFrom = process.env.EMAIL_FROM || process.env.GMAIL_USER;
+  const emailContent = withAppFooter({
+    text: options.text,
+    html: options.html,
+  });
 
   if (!emailFrom) {
     console.warn('EMAIL_FROM not set, using console transport');
@@ -76,16 +81,16 @@ export async function sendEmail(options: EmailOptions): Promise<void> {
       console.log(`To: ${options.to}`);
       console.log(`From: ${emailFrom}`);
       console.log(`Subject: ${options.subject}`);
-      console.log(`\nText:\n${options.text}`);
-      console.log(`\nHTML:\n${options.html}`);
+      console.log(`\nText:\n${emailContent.text}`);
+      console.log(`\nHTML:\n${emailContent.html}`);
       console.log(`--- End Email Log ---\n`);
     } else {
       await transporter.sendMail({
         from: emailFrom,
         to: options.to,
         subject: options.subject,
-        text: options.text,
-        html: options.html,
+        text: emailContent.text,
+        html: emailContent.html,
       });
     }
   } catch (error) {
