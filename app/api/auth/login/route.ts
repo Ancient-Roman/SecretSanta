@@ -51,7 +51,7 @@ export async function POST(request: NextRequest) {
       ].join('\n');
       const html = `
         <p>Sign in to your Secret Santa account:</p>
-        <p><a href="${magicLink}" style="color: #C41E3A; text-decoration: none;">Click here to sign in</a></p>
+        <p><a href="${magicLink}" style="color: #C41E3A; text-decoration: none;">${magicLink}</a></p>
         <p style="color: #999; font-size: 12px;">This link expires in 15 minutes.</p>
       `;
 
