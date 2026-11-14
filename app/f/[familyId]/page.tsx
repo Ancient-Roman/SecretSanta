@@ -69,6 +69,12 @@ export default function FamilyPage() {
     );
   }
 
+  const matchedMember = family.myAssignment
+    ? family.members.find(
+        (member) => !member.isYou && member.displayName === family.myAssignment?.receiver
+      ) || null
+    : null;
+
   return (
     <div className="space-y-8">
       <div className="flex justify-between items-start">
@@ -98,6 +104,34 @@ export default function FamilyPage() {
           )}
           {family.myAssignment.exchangeDate && (
             <p className="text-sm">Exchange: {new Date(family.myAssignment.exchangeDate).toLocaleDateString()}</p>
+          )}
+
+          {matchedMember && (
+            <div className="mt-4 space-y-2">
+              <h4 className="text-sm font-bold uppercase tracking-wide text-red-100">Wishlist</h4>
+              {matchedMember.wishlistItems.length === 0 ? (
+                <p className="text-sm text-red-50 italic">No wishlist items yet</p>
+              ) : (
+                <ul className="space-y-2">
+                  {matchedMember.wishlistItems.map((item) => (
+                    <li key={item.id} className="text-sm bg-white/10 rounded p-2">
+                      <div className="font-medium">{item.title}</div>
+                      {item.url && (
+                        <a
+                          href={item.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-white underline hover:text-red-100 text-xs"
+                        >
+                          View
+                        </a>
+                      )}
+                      {item.notes && <p className="text-red-50 text-xs mt-1">{item.notes}</p>}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
           )}
         </div>
       )}
