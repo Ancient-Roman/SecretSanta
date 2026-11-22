@@ -1,10 +1,13 @@
 import { Exclusion } from "./exclusion";
 import { Member, MemberDetails } from "./member";
 
+/** Open (can join), locked (before event), day_of, completed */
+export type FamilyStatus = 'open' | 'locked' | 'day_of' | 'completed';
+
 export type HostFamily = {
   id: number;
   name: string;
-  status: string;
+  status: FamilyStatus;
   verificationEmail?: string | null;
   members: Member[];
   exclusions: Exclusion[];
@@ -15,7 +18,7 @@ export type FamilyMemberData = {
   id: number;
   name: string;
   code: string;
-  status: string;
+  status: FamilyStatus;
   budget?: number;
   exchangeDate?: string;
   members: MemberDetails[];

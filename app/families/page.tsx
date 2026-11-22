@@ -2,12 +2,13 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { FamilyStatus } from '@/app/_components/types/family';
 
 interface FamilyMembership {
   familyId: number;
   familyName: string;
   displayName: string;
-  status: string;
+  status: FamilyStatus;
 }
 
 export default function FamiliesPage() {

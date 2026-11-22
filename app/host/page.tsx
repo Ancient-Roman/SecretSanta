@@ -3,12 +3,13 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createFamilySchema } from '@/lib/validation/schemas';
+import { FamilyStatus } from '@/app/_components/types/family';
 
 interface Family {
   id: number;
   name: string;
   code: string;
-  status: string;
+  status: FamilyStatus;
   memberCount: number;
 }
 

@@ -1,6 +1,7 @@
 import { getSession } from './session';
 import { db, families, memberships } from '@/lib/db';
 import { eq, and } from 'drizzle-orm';
+import { FamilyStatus } from '@/app/_components/types/family';
 
 export class UnauthorizedError extends Error {
   constructor(message: string = 'Unauthorized') {
@@ -71,7 +72,7 @@ export async function requireHost(familyId: number) {
 
 export async function requireStatus(
   familyId: number,
-  ...allowedStatuses: Array<'open' | 'locked' | 'day_of' | 'completed'>
+  ...allowedStatuses: FamilyStatus[]
 ) {
   const family = await db.query.families.findFirst({
     where: eq(families.id, familyId),

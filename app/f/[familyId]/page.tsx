@@ -19,6 +19,8 @@ export default function FamilyPage() {
   const [showExclusionModal, setShowExclusionModal] = useState(false);
   const [exclusionToDelete, setExclusionToDelete] = useState<Exclusion | null>(null);
 
+  const canEditWishlistStatues = ['open', 'locked'];
+
   useEffect(() => {
     fetchFamily();
   }, [familyId]);
@@ -171,7 +173,7 @@ export default function FamilyPage() {
                 </ul>
               )}
 
-              {member.isYou && family.status === 'open' && (
+              {member.isYou && (canEditWishlistStatues.includes(family.status)) && (
                 <a
                   href={`/f/${familyId}/wishlist`}
                   className="mt-3 text-santa-red hover:underline text-sm font-medium"
