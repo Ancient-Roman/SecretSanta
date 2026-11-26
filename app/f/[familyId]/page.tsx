@@ -19,11 +19,53 @@ export default function FamilyPage() {
   const [showExclusionModal, setShowExclusionModal] = useState(false);
   const [exclusionToDelete, setExclusionToDelete] = useState<Exclusion | null>(null);
 
+  const [itemPrices, setItemPrices] = useState<Record<number, { price: number; currency?: string }>>({});
+
   const canEditWishlistStatues = ['open', 'locked'];
 
   useEffect(() => {
     fetchFamily();
   }, [familyId]);
+
+  useEffect(() => {
+    if (!family?.myAssignment) return;
+
+    const matchedMember = family.members.find(
+      (member) => !member.isYou && member.displayName === family.myAssignment?.receiver
+    );
+
+    if (!matchedMember) return;
+
+    const itemsWithUrls = matchedMember.wishlistItems.filter((item) => item.url);
+    if (itemsWithUrls.length === 0) return;
+
+    let cancelled = false;
+
+    Promise.all(
+      itemsWithUrls.map(async (item) => {
+        try {
+          const response = await fetch(`/api/families/${familyId}/wishlist/${item.id}/price`);
+          if (!response.ok) return null;
+          const price = await response.json();
+          return typeof price.price === 'number' ? { id: item.id, price } : null;
+        } catch {
+          return null;
+        }
+      })
+    ).then((results) => {
+      if (cancelled) return;
+
+      const nextPrices: Record<number, { price: number; currency?: string }> = {};
+      for (const result of results) {
+        if (result) nextPrices[result.id] = result.price;
+      }
+      setItemPrices(nextPrices);
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [family, familyId]);
 
   async function fetchFamily() {
     try {
@@ -41,6 +83,18 @@ export default function FamilyPage() {
       console.error(err);
     } finally {
       setLoading(false);
+    }
+  }
+
+  function formatPrice(price: { price: number; currency?: string }) {
+    try {
+      return new Intl.NumberFormat(undefined, {
+        style: 'currency',
+        currency: price.currency || 'USD',
+        maximumFractionDigits: 2,
+      }).format(price.price);
+    } catch {
+      return `$${price.price.toFixed(2)}`;
     }
   }
 
@@ -117,7 +171,14 @@ export default function FamilyPage() {
                 <ul className="space-y-2">
                   {matchedMember.wishlistItems.map((item) => (
                     <li key={item.id} className="text-sm bg-white/10 rounded p-2">
-                      <div className="font-medium">{item.title}</div>
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="font-medium">{item.title}</div>
+                        {itemPrices[item.id] && (
+                          <div className="text-sm font-bold text-red-50 whitespace-nowrap">
+                            {formatPrice(itemPrices[item.id])}
+                          </div>
+                        )}
+                      </div>
                       {item.url && (
                         <a
                           href={item.url}
@@ -168,6 +229,11 @@ export default function FamilyPage() {
                         </a>
                       )}
                       {item.notes && <p className="text-gray-600 text-xs mt-1">{item.notes}</p>}
+                      {itemPrices[item.id] && (
+                        <p className="text-red-50 text-xs mt-1">
+                          Price: {formatPrice(itemPrices[item.id])}
+                        </p>
+                      )}
                     </li>
                   ))}
                 </ul>
