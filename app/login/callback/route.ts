@@ -2,7 +2,6 @@ import { db, loginTokens, users, memberships, families } from '@/lib/db';
 import { eq, and } from 'drizzle-orm';
 import { createSessionToken, hashToken } from '@/lib/auth/tokens';
 import { NextRequest, NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
 
 export async function GET(request: NextRequest) {
   try {
@@ -29,15 +28,17 @@ export async function GET(request: NextRequest) {
       return NextResponse.redirect(new URL('/login/error?error=expired', request.url));
     }
 
+    const normalizedEmail = loginToken.email.trim().toLowerCase();
+
     // Get or create user
     let user = await db.query.users.findFirst({
-      where: eq(users.email, loginToken.email),
+      where: eq(users.email, normalizedEmail),
     });
 
     if (!user) {
       const result = await db
         .insert(users)
-        .values({ email: loginToken.email })
+        .values({ email: normalizedEmail })
         .returning();
       user = result[0];
     }
@@ -75,8 +76,11 @@ export async function GET(request: NextRequest) {
     }
 
     // Check if user is a host
-    const hostEmails = (process.env.HOST_EMAILS || '').split(',').map((e) => e.trim());
-    const isHost = hostEmails.includes(user.email);
+    const hostEmails = (process.env.HOST_EMAILS || '')
+      .split(',')
+      .map((email) => email.trim().toLowerCase())
+      .filter(Boolean);
+    const isHost = hostEmails.includes(user.email.toLowerCase());
 
     // Create session
     const sessionToken = await createSessionToken({
@@ -100,8 +104,7 @@ export async function GET(request: NextRequest) {
     const response = NextResponse.redirect(new URL(redirectUrl, request.url));
 
     // Set cookie
-    const cookieStore = await cookies();
-    cookieStore.set('ss_session', sessionToken, {
+    response.cookies.set('ss_session', sessionToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',

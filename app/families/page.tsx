@@ -15,6 +15,7 @@ export default function FamiliesPage() {
   const router = useRouter();
   const [memberships, setMemberships] = useState<FamilyMembership[]>([]);
   const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState('');
 
   useEffect(() => {
     fetchMemberships();
@@ -23,11 +24,23 @@ export default function FamiliesPage() {
   async function fetchMemberships() {
     try {
       const response = await fetch('/api/members/families');
-      if (!response.ok) throw new Error('Failed to fetch families');
+
+      // If the user is not authenticated, redirect to the home page
+      if (response.status === 401) {
+        router.replace('/');
+        return;
+      }
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch families');
+      }
+
       const data = await response.json();
       setMemberships(data.families || []);
+      setFetchError('');
     } catch (err) {
       console.error('Error fetching families:', err);
+      setFetchError('Something went wrong loading your families. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -50,6 +63,21 @@ export default function FamiliesPage() {
 
       {loading ? (
         <div className="text-center text-gray-600">Loading families...</div>
+      ) : fetchError ? (
+        <div className="text-center py-12 bg-red-50 rounded-lg space-y-3">
+          <p className="text-red-700">{fetchError}</p>
+          <button
+            type="button"
+            onClick={() => {
+              setLoading(true);
+              setFetchError('');
+              fetchMemberships();
+            }}
+            className="text-santa-red hover:underline font-medium"
+          >
+            Try again
+          </button>
+        </div>
       ) : memberships.length === 0 ? (
         <div className="text-center py-12 bg-gray-50 rounded-lg">
           <p className="text-gray-600">You're not part of any families yet</p>

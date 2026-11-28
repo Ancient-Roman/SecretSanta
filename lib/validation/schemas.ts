@@ -1,19 +1,21 @@
 import { z } from 'zod';
 
 export const loginSchema = z.object({
-  email: z.string().email('Invalid email address'),
+  email: z.string().trim().toLowerCase().email('Invalid email address'),
 });
 
 export const joinFamilySchema = z.object({
   code: z
     .string()
+    .trim()
     .length(6, 'Family code must be 6 characters')
     .toUpperCase(),
   displayName: z
     .string()
+    .trim()
     .min(1, 'Display name is required')
     .max(255, 'Display name must be 255 characters or less'),
-  email: z.string().email('Invalid email address'),
+  email: z.string().trim().toLowerCase().email('Invalid email address'),
 });
 
 export const createFamilySchema = z.object({

@@ -10,7 +10,7 @@ export default function CheckEmailPage() {
 
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-sm text-blue-800">
         <p>
-          If you don't see the email, check your spam folder. The link expires in 15 minutes.
+          If you don't see the email, check your spam folder. The link expires in 30 minutes.
         </p>
       </div>
 

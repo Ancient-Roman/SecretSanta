@@ -5,7 +5,7 @@ import { generateMagicToken, hashToken } from '@/lib/auth/tokens';
 import { sendEmail } from '@/lib/email/send';
 import { eq } from 'drizzle-orm';
 
-const MAGIC_LINK_EXPIRY = 15 * 60 * 1000; // 15 minutes
+const MAGIC_LINK_EXPIRY = 30 * 60 * 1000; // 30 minutes
 const APP_URL = process.env.APP_URL || 'http://localhost:3000';
 
 export async function POST(request: NextRequest) {
@@ -47,12 +47,14 @@ export async function POST(request: NextRequest) {
         '',
         `Magic link: ${magicLink}`,
         '',
-        'This link expires in 15 minutes.',
+        'This link expires in 30 minutes.',
       ].join('\n');
       const html = `
         <p>Sign in to your Secret Santa account:</p>
-        <p><a href="${magicLink}" style="color: #C41E3A; text-decoration: none;">${magicLink}</a></p>
-        <p style="color: #999; font-size: 12px;">This link expires in 15 minutes.</p>
+        <p><a href="${magicLink}" style="color: #C41E3A; text-decoration: none;">Click here to sign in</a></p>
+        <p>Or copy and paste this link:</p>
+        <p style="word-break: break-all;"><code>${magicLink}</code></p>
+        <p style="color: #999; font-size: 12px;">This link expires in 30 minutes.</p>
       `;
 
       await sendEmail({
